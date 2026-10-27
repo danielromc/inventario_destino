@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0A6C8B"><style>body{margin:0}</style></head><body>
+<title>Inventario Destino</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+/* Layout: una columna estrecha tipo hoja de conteo. Ubicación → categoría → productos con contador. */
+:root{
+  --bg:#EDF0F1; --surface:#FFFFFF; --ink:#13202A; --muted:#5B6B76; --line:#D3DADE;
+  --accent:#0A6C8B; --accent-ink:#FFFFFF; --done:#1E7A4C; --done-bg:#DDF0E5;
+  --warn:#8A5200; --warn-bg:#FBEBCF; --danger:#B3261E;
+  --f-display:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;
+  --f-body:'Barlow',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F171C; --surface:#18232A; --ink:#E7EDF0; --muted:#93A4AE; --line:#2B3A43;
+    --accent:#4FB6D6; --accent-ink:#06222C; --done:#5CC98D; --done-bg:#16372A;
+    --warn:#F0B35A; --warn-bg:#3A2B10; --danger:#FF8A80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F171C; --surface:#18232A; --ink:#E7EDF0; --muted:#93A4AE; --line:#2B3A43;
+  --accent:#4FB6D6; --accent-ink:#06222C; --done:#5CC98D; --done-bg:#16372A;
+  --warn:#F0B35A; --warn-bg:#3A2B10; --danger:#FF8A80; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.35;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  -webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+#app{max-width:560px;margin:0 auto;padding-bottom:110px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:12px 0 10px;border-bottom:1px solid var(--line)}
+.top-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px}
+.eyebrow{font-family:var(--f-display);font-weight:600;font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:34px;line-height:1.05;margin:2px 0 0;text-wrap:balance}
+.status{font-size:13px;color:var(--muted);margin-top:4px}
+.btn{min-height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-weight:600}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.link{border-color:transparent;background:transparent;color:var(--accent);padding:0 8px;margin-left:-8px}
+.btn.danger{color:var(--danger);border-color:var(--danger)}
+.btn.block{width:100%}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.bar.ok>i{background:var(--done)}
+.sect{display:flex;flex-direction:column;gap:14px;padding-top:16px}
+h2{font-family:var(--f-display);font-weight:700;font-size:24px;margin:8px 0 0}
+.progress-line{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);margin-bottom:6px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.loc{display:flex;flex-direction:column;gap:8px;text-align:left;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);min-height:92px}
+.loc .nm{font-family:var(--f-display);font-weight:700;font-size:22px;line-height:1.05}
+.loc .sub{font-size:13px;color:var(--muted)}
+.loc.is-done{background:var(--done-bg);border-color:var(--done)}
+.list{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+.list>*+*{border-top:1px solid var(--line)}
+.catrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;min-height:64px;background:transparent;border:0;text-align:left;width:100%}
+.catrow .nm{font-family:var(--f-display);font-weight:700;font-size:22px}
+.catrow .sub{font-size:13px;color:var(--muted)}
+.pill{flex:none;font-size:13px;font-weight:600;padding:4px 10px;border-radius:99px;background:var(--line);color:var(--muted)}
+.pill.done{background:var(--done-bg);color:var(--done)}
+.pill.wip{background:var(--warn-bg);color:var(--warn)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px 8px 16px;min-height:60px}
+.row .nm{min-width:0;overflow-wrap:anywhere;font-weight:500}
+.row.has .nm{font-weight:600}
+.step{flex:none;display:flex;align-items:center;gap:6px}
+.step button{width:48px;height:48px;border-radius:10px;border:1px solid var(--line);background:var(--bg);font-size:26px;line-height:1;font-weight:600}
+.step button[data-act="inc"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.step input{width:56px;height:48px;text-align:center;font:600 22px var(--f-body);font-variant-numeric:tabular-nums;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)}
+.row.has .step input{border-color:var(--accent)}
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--bg);border-top:1px solid var(--line);
+  padding:10px max(16px,env(safe-area-inset-left,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-right,0px))}
+.dock-in{max-width:560px;margin:0 auto;display:flex;gap:10px}
+.dock-in .primary{flex:1}
+.note{padding:12px 14px;border-radius:10px;background:var(--warn-bg);color:var(--warn);font-size:14px}
+.note summary{cursor:pointer;font-weight:600}
+.note ul{margin:8px 0 0;padding-left:18px}
+textarea.msg{width:100%;min-height:300px;resize:vertical;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:14px/1.45 ui-monospace,Menlo,Consolas,monospace}
+.check{display:flex;align-items:center;gap:10px;min-height:44px}
+.check input{width:22px;height:22px;accent-color:var(--accent)}
+.confirm{display:flex;flex-direction:column;gap:10px;padding:14px;border:1px solid var(--danger);border-radius:12px}
+.confirm p{margin:0;font-size:14px}
+.confirm div{display:flex;gap:10px}
+.confirm .btn{flex:1}
+.ok-msg{font-size:14px;color:var(--done);min-height:20px}
+@media (prefers-reduced-motion: no-preference){.bar>i{transition:width .2s}}
+</style>
+
+<div id="app"></div>
+
+<script>
+const DATA = {"locs": ["Persiana 1", "Persiana 2", "Persiana 3", "Persiana 4", "Persiana 5", "Nevera 1", "Nevera 2", "Congelador", "Persiana interior", "Restaurante"], "cats": [{"name": "GINEBRAS", "items": [{"i": 0, "n": "SEAGRAMS 0,7"}, {"i": 1, "n": "HENDRICKS 0,7"}, {"i": 2, "n": "GVINE 0,7"}, {"i": 3, "n": "GVINE 1"}, {"i": 4, "n": "LARIOS ROSE 0,7"}, {"i": 5, "n": "LARIOS 12 0,7"}, {"i": 6, "n": "GREENALLS 0,7"}, {"i": 7, "n": "PUERTO AZUL 0,7"}, {"i": 8, "n": "PUERTO ROSA 0,7"}, {"i": 9, "n": "PUERTO MELÓN 0,7"}, {"i": 10, "n": "PUERTO MORA 0,7"}, {"i": 11, "n": "PUERTO MANGO"}, {"i": 12, "n": "NORDÉS 0,7"}, {"i": 13, "n": "BROCKMANS ORANGE 0,7"}, {"i": 14, "n": "BROCKMANS INTENSELY 0,7"}, {"i": 15, "n": "BROCKMANS PREMIUM 0,7"}, {"i": 16, "n": "MARTIN MILLERS 0,7"}, {"i": 17, "n": "TANQUERAY 0,7"}, {"i": 18, "n": "ROSA INVI"}, {"i": 19, "n": "GIN BARATA"}, {"i": 20, "n": "BOMBAY"}, {"i": 21, "n": "BEEFETER"}, {"i": 22, "n": "MACARONESIAN"}, {"i": 23, "n": "MASTER AZUL"}, {"i": 24, "n": "MASTER ROSA"}, {"i": 25, "n": "MASTER VERDE"}, {"i": 26, "n": "TANQUERAY 0,0"}]}, {"name": "WHISKY", "items": [{"i": 27, "n": "BLACK LABEL"}, {"i": 28, "n": "FIREBALL"}, {"i": 29, "n": "RED LABEL"}, {"i": 30, "n": "JACK DANIEL’S"}, {"i": 31, "n": "JACK MANZANA"}, {"i": 32, "n": "CUTTY SARK"}, {"i": 33, "n": "DYC 8 AÑOS"}, {"i": 34, "n": "BUCHANANS 12 AÑOS"}, {"i": 35, "n": "JIM BEAM"}, {"i": 36, "n": "BALLENTINES"}, {"i": 37, "n": "GLENFIDDICH 12"}, {"i": 38, "n": "GLENFIDDICH 15"}, {"i": 39, "n": "BOLD"}]}, {"name": "VODKA", "items": [{"i": 40, "n": "ABSOLUT 0,7L"}, {"i": 41, "n": "ABSOLUT 1,75L"}, {"i": 42, "n": "ABSOLUT 3L"}, {"i": 43, "n": "ABSOLUT 4,5L"}, {"i": 44, "n": "CIROC COCO"}, {"i": 45, "n": "CIROC MANZANA"}, {"i": 46, "n": "CIROC NORMAL 0,7L"}, {"i": 47, "n": "CIROC NORMAL 1,75L"}, {"i": 48, "n": "CIROC MELOCOTÓN"}, {"i": 49, "n": "MOSKOVSKAYA"}, {"i": 50, "n": "GREY GOOSE 0,7L"}, {"i": 51, "n": "GREY GOOSE 1,5L"}, {"i": 52, "n": "BELVEDERE 0,7L"}, {"i": 53, "n": "BELVEDERE 1,75L"}, {"i": 54, "n": "BELVEDERE 3L"}, {"i": 55, "n": "BELVEDERE 6L"}, {"i": 56, "n": "VDK/INVITACIÓN"}]}, {"name": "RON", "items": [{"i": 57, "n": "SANTA TERESA"}, {"i": 58, "n": "BRUGAL"}, {"i": 59, "n": "BARCELÓ"}, {"i": 60, "n": "TINGURAM"}, {"i": 61, "n": "VIEJO DE CALDAS"}, {"i": 62, "n": "BRUGAL EXTRA VIEJO"}, {"i": 63, "n": "CACIQUE"}, {"i": 64, "n": "BARCELÓ IMPERIAL"}, {"i": 65, "n": "WHITE DAYAMON"}, {"i": 66, "n": "THOR"}]}, {"name": "LICORES", "items": [{"i": 67, "n": "TEQUILA FRESA"}, {"i": 68, "n": "TEQUILA MANGO"}, {"i": 69, "n": "COCO"}, {"i": 70, "n": "JOSÉ CUERVO"}, {"i": 71, "n": "JAGGER"}, {"i": 72, "n": "MALIBÚ"}, {"i": 73, "n": "MARTINI ROJO"}, {"i": 74, "n": "MARTINI BLANCO"}, {"i": 75, "n": "TERRY CENTENARIO"}, {"i": 76, "n": "BAILYE’S"}, {"i": 77, "n": "APEROL"}, {"i": 78, "n": "LICOR 43"}, {"i": 79, "n": "LICOR DE ARROZ"}, {"i": 80, "n": "LICOR DE HIERBAS"}, {"i": 81, "n": "ORUJO DE HIERBAS"}, {"i": 82, "n": "CAZAYA"}, {"i": 83, "n": "DON JULIO"}, {"i": 84, "n": "CACHAÇA"}, {"i": 85, "n": "TÍA MARÍA"}, {"i": 86, "n": "LIMONCELLO"}, {"i": 87, "n": "COINTREAU"}, {"i": 88, "n": "YZAGUIRRE BLANCO"}, {"i": 89, "n": "DE CATEGORÍA ROJO"}, {"i": 90, "n": "MARIA BRIZARD"}, {"i": 91, "n": "DISARONNO"}, {"i": 92, "n": "MISTELA"}, {"i": 93, "n": "MANGAROCA"}, {"i": 94, "n": "GRANADINA"}, {"i": 95, "n": "LIMA"}, {"i": 96, "n": "CALAVERA NARANJA"}, {"i": 97, "n": "CALAVERA BLANCA"}, {"i": 98, "n": "CALAVERA NEGRA"}, {"i": 99, "n": "PATRÓN"}, {"i": 100, "n": "DON PABLO"}, {"i": 101, "n": "LICOR DE CAFÉ"}]}, {"name": "MOET", "items": [{"i": 102, "n": "MOET BRUT"}, {"i": 103, "n": "MOET IMPERIAL ROSE"}, {"i": 104, "n": "MOET NIR"}, {"i": 105, "n": "MOET ICE"}, {"i": 106, "n": "MOET ICE ROSÉ"}, {"i": 107, "n": "DON PERIGNON"}]}]};
+const LOCS = DATA.locs, CATS = DATA.cats;
+const LS = 'inventario-destino-v1';
+const NS = LOCS.length * CATS.length;
+
+const fresh = () => ({counts:{}, done:{}, view:{s:'home',l:0,c:0}, startedAt:Date.now(), updatedAt:0, zeros:true});
+let S = fresh();
+let uiConfirmReset = false, uiZeroArm = false, uiCopied = '', zeroT = null;
+
+/* ---------- Persistencia: el móvil guarda al instante; la nube (si está disponible) guarda una copia ---------- */
+let dbDoc = null, saveT = null, statusText = 'Listo';
+function normalize(o){ const f = fresh(); return Object.assign(f, o||{}, {view:Object.assign(f.view,(o&&o.view)||{})}); }
+try { const raw = localStorage.getItem(LS); if (raw) S = normalize(JSON.parse(raw)); } catch(e){}
+
+function setStatus(t){ statusText = t; const el = document.getElementById('status'); if (el) el.textContent = statusLine(); }
+function touch(){
+  S.updatedAt = Date.now();
+  try { localStorage.setItem(LS, JSON.stringify(S)); } catch(e){}
+  setStatus('Guardando…');
+  clearTimeout(saveT); saveT = setTimeout(saveRemote, 600);
+}
+async function saveRemote(){
+  if (!dbDoc){ setStatus('Guardado en este móvil'); return; }
+  try { await dbDoc.set({json: JSON.stringify(S), updatedAt: S.updatedAt}); setStatus('Guardado'); }
+  catch(e){ setStatus('Guardado en este móvil'); }
+}
+(async () => {
+  try {
+    if (!window.claude || !window.claude.use) return;
+    const [db, user] = await Promise.all([claude.use('db'), claude.use('user')]);
+    if (!db || !user) return;
+    const uid = await user.id();
+    dbDoc = db.collection('data/users/' + uid).doc('inventario');
+    const snap = await dbDoc.get();
+    if (snap.exists){
+      const d = snap.data();
+      if (d && d.json && d.updatedAt > S.updatedAt){
+        S = normalize(JSON.parse(d.json));
+        try { localStorage.setItem(LS, JSON.stringify(S)); } catch(e){}
+        render(); setStatus('Guardado'); return;
+      }
+    }
+    if (S.updatedAt > 0) saveRemote(); else setStatus('Listo');
+  } catch(e){}
+})();
+
+/* ---------- Utilidades ---------- */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const key = (l,i) => l + ':' + i;
+const getN = (l,i) => S.counts[key(l,i)] || 0;
+const secDone = (l,c) => !!S.done[l + ':' + c];
+const secSum = (l,c) => CATS[c].items.reduce((a,it) => a + getN(l,it.i), 0);
+const locDoneCount = l => CATS.reduce((a,_,c) => a + (secDone(l,c) ? 1 : 0), 0);
+const totalDone = () => LOCS.reduce((a,_,l) => a + locDoneCount(l), 0);
+const total = i => LOCS.reduce((a,_,l) => a + getN(l,i), 0);
+const nice = s => s.toLocaleLowerCase('es').replace(/(^|[\s\/(])(\p{L})/gu, (m,a,b) => a + b.toLocaleUpperCase('es'));
+const dateLabel = (t, opts) => new Date(t).toLocaleDateString('es-ES', opts);
+function statusLine(){ return statusText + ' · inventario del ' + dateLabel(S.startedAt,{weekday:'long',day:'numeric',month:'long'}); }
+const pct = (a,b) => b ? Math.round(100*a/b) : 0;
+
+function go(s,l,c){ S.view = {s, l: l ?? S.view.l, c: c ?? S.view.c}; uiConfirmReset = false; uiZeroArm = false; uiCopied = ''; touch(); render(); window.scrollTo(0,0); }
+
+/* ---------- Vistas ---------- */
+function header(eyebrow, title, back){
+  return `<header class="top"><div class="top-row">
+    ${back ? `<button class="btn link" data-act="back">‹ ${esc(back)}</button>` : `<span class="eyebrow">Inventario semanal</span>`}
+    ${S.view.s !== 'summary' ? `<button class="btn" data-act="summary">Resumen</button>` : ''}
+  </div>
+  ${eyebrow ? `<div class="eyebrow">${esc(eyebrow)}</div>` : ''}
+  <h1>${esc(title)}</h1><div class="status" id="status">${esc(statusLine())}</div></header>`;
+}
+
+function vHome(){
+  const d = totalDone();
+  return header('', 'Destino') + `<main class="sect">
+    <div><div class="progress-line"><span>${d} de ${NS} secciones terminadas</span><span>${pct(d,NS)}%</span></div>
+    <div class="bar"><i style="width:${pct(d,NS)}%"></i></div></div>
+    <h2>¿Dónde estás contando?</h2>
+    <div class="grid">${LOCS.map((n,l) => {
+      const k = locDoneCount(l), all = k === CATS.length;
+      return `<button class="loc ${all?'is-done':''}" data-act="loc" data-l="${l}"><span class="nm">${esc(n)}</span>
+        <span class="sub">${all ? 'Completa' : k + ' de ' + CATS.length + ' categorías'}</span>
+        <span class="bar ${all?'ok':''}"><i style="width:${pct(k,CATS.length)}%"></i></span></button>`;
+    }).join('')}</div>
+  </main>
+  <div class="dock"><div class="dock-in"><button class="btn primary" data-act="summary">Ver resumen y enviar</button></div></div>`;
+}
+
+function vLoc(){
+  const l = S.view.l;
+  return header('Ubicación', LOCS[l], 'Ubicaciones') + `<main class="sect">
+    <h2>¿Qué vas a contar?</h2>
+    <div class="list">${CATS.map((c,ci) => {
+      const done = secDone(l,ci), sum = secSum(l,ci);
+      const st = done ? ['done','Hecha'] : sum > 0 ? ['wip','En curso'] : ['','Pendiente'];
+      return `<button class="catrow" data-act="cat" data-c="${ci}"><span><span class="nm">${esc(c.name)}</span><br><span class="sub">${sum} contadas aquí</span></span><span class="pill ${st[0]}">${st[1]}</span></button>`;
+    }).join('')}</div>
+  </main>`;
+}
+
+function vCat(){
+  const l = S.view.l, c = S.view.c, cat = CATS[c];
+  return header(LOCS[l], cat.name, LOCS[l]) + `<main class="sect">
+    <div class="progress-line"><span>Contadas en esta sección</span><strong id="subtotal">${secSum(l,c)}</strong></div>
+    <div class="list">${cat.items.map(it => {
+      const n = getN(l,it.i);
+      return `<div class="row ${n?'has':''}" data-i="${it.i}"><span class="nm">${esc(it.n)}</span>
+        <span class="step"><button data-act="dec" aria-label="Quitar una ${esc(it.n)}">−</button>
+        <input id="q-${it.i}" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="${n}" aria-label="Cantidad de ${esc(it.n)}">
+        <button data-act="inc" aria-label="Añadir una ${esc(it.n)}">+</button></span></div>`;
+    }).join('')}</div>
+  </main>
+  <div class="dock"><div class="dock-in">
+    <button class="btn ${uiZeroArm?'danger':''}" data-act="zero" id="zero">${uiZeroArm ? '¿Seguro?' : 'A cero'}</button>
+    <button class="btn primary" data-act="finish">${secDone(l,c) ? 'Guardar de nuevo' : 'Terminar sección'}</button>
+  </div></div>`;
+}
+
+function message(){
+  const lines = ['*INVENTARIO DESTINO* – ' + dateLabel(S.startedAt,{day:'numeric',month:'numeric'})];
+  CATS.forEach(c => {
+    const rows = c.items.map(it => [it, total(it.i)]).filter(([,n]) => S.zeros || n > 0);
+    if (!rows.length) return;
+    lines.push('', '*' + c.name + '*');
+    rows.forEach(([it,n]) => lines.push(nice(it.n) + ': ' + n));
+  });
+  return lines.join('\n');
+}
+
+function vSummary(){
+  const pend = [];
+  LOCS.forEach((n,l) => { const m = CATS.filter((c,ci) => !secDone(l,ci)).map(c => nice(c.name)); if (m.length) pend.push([n,m]); });
+  const totalBottles = CATS.reduce((a,c) => a + c.items.reduce((b,it) => b + total(it.i), 0), 0);
+  return header('', 'Resumen', 'Contar') + `<main class="sect">
+    ${pend.length ? `<details class="note"><summary>Faltan ${NS - totalDone()} secciones por terminar</summary><ul>${pend.map(([n,m]) => `<li><strong>${esc(n)}:</strong> ${esc(m.join(', '))}</li>`).join('')}</ul></details>`
+      : `<div class="note" style="background:var(--done-bg);color:var(--done)">Todas las secciones están terminadas.</div>`}
+    <div class="progress-line"><span>Botellas contadas en total</span><strong>${totalBottles}</strong></div>
+    <label class="check"><input type="checkbox" id="zeros" ${S.zeros?'checked':''}> Incluir los productos con 0</label>
+    <textarea class="msg" id="msg" readonly>${esc(message())}</textarea>
+    <button class="btn primary block" data-act="copy">Copiar para WhatsApp</button>
+    <div class="ok-msg" id="copied" role="status">${esc(uiCopied)}</div>
+    <h2>Nuevo inventario</h2>
+    ${uiConfirmReset ? `<div class="confirm"><p>Se borrarán todos los conteos de este inventario y empezarás de cero. Copia el resumen antes si lo necesitas.</p>
+      <div><button class="btn" data-act="reset-no">Cancelar</button><button class="btn danger" data-act="reset-yes">Borrar y empezar</button></div></div>`
+      : `<button class="btn block" data-act="reset">Empezar un inventario nuevo</button>`}
+  </main>`;
+}
+
+function render(){
+  const v = S.view.s;
+  document.getElementById('app').innerHTML = v === 'loc' ? vLoc() : v === 'cat' ? vCat() : v === 'summary' ? vSummary() : vHome();
+}
+
+/* ---------- Acciones ---------- */
+function setCount(i, n, input){
+  n = Math.max(0, Math.min(999, n|0));
+  const k = key(S.view.l, i);
+  if (n) S.counts[k] = n; else delete S.counts[k];
+  const row = document.querySelector('.row[data-i="' + i + '"]');
+  if (row){ row.classList.toggle('has', n > 0); const inp = row.querySelector('input'); if (inp && inp !== input) inp.value = n; }
+  const st = document.getElementById('subtotal'); if (st) st.textContent = secSum(S.view.l, S.view.c);
+  touch();
+}
+
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const a = b.dataset.act, V = S.view;
+  if (a === 'loc') go('loc', +b.dataset.l);
+  else if (a === 'cat') go('cat', V.l, +b.dataset.c);
+  else if (a === 'summary') go('summary');
+  else if (a === 'back') go(V.s === 'cat' ? 'loc' : V.s === 'loc' ? 'home' : 'home');
+  else if (a === 'inc' || a === 'dec'){
+    const i = +b.closest('.row').dataset.i;
+    setCount(i, getN(V.l,i) + (a === 'inc' ? 1 : -1));
+  }
+  else if (a === 'finish'){
+    S.done[V.l + ':' + V.c] = true;
+    go(locDoneCount(V.l) === CATS.length ? 'home' : 'loc');
+  }
+  else if (a === 'zero'){
+    if (!uiZeroArm){ uiZeroArm = true; render(); clearTimeout(zeroT); zeroT = setTimeout(() => { uiZeroArm = false; if (S.view.s === 'cat') render(); }, 3000); return; }
+    CATS[V.c].items.forEach(it => delete S.counts[key(V.l,it.i)]);
+    delete S.done[V.l + ':' + V.c]; uiZeroArm = false; touch(); render();
+  }
+  else if (a === 'copy'){
+    const ta = document.getElementById('msg'), text = ta.value; let ok = false;
+    try { await navigator.clipboard.writeText(text); ok = true; } catch(err){}
+    if (!ok){ ta.removeAttribute('readonly'); ta.focus(); ta.select(); try { ok = document.execCommand('copy'); } catch(err){} ta.setAttribute('readonly',''); }
+    uiCopied = ok ? 'Copiado. Pégalo en WhatsApp.' : 'No se pudo copiar. Mantén pulsado el texto y elige Copiar.';
+    document.getElementById('copied').textContent = uiCopied;
+  }
+  else if (a === 'reset'){ uiConfirmReset = true; render(); }
+  else if (a === 'reset-no'){ uiConfirmReset = false; render(); }
+  else if (a === 'reset-yes'){ const z = S.zeros; S = fresh(); S.zeros = z; uiConfirmReset = false; touch(); render(); window.scrollTo(0,0); }
+});
+
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'zeros'){ S.zeros = t.checked; touch(); document.getElementById('msg').value = message(); return; }
+  const row = t.closest && t.closest('.row'); if (!row || t.tagName !== 'INPUT') return;
+  const digits = t.value.replace(/\D/g,'').slice(0,3);
+  if (digits !== t.value) t.value = digits;
+  setCount(+row.dataset.i, digits === '' ? 0 : parseInt(digits,10), t);
+});
+document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('.step input')) e.target.select(); });
+document.addEventListener('focusout', e => { if (e.target.matches && e.target.matches('.step input')){ const row = e.target.closest('.row'); e.target.value = getN(S.view.l, +row.dataset.i); } });
+
+render();
+</script>
+
+</body></html>
