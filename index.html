@@ -1,5 +1,4 @@
-<!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0A6C8B"><style>body{margin:0}</style></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Inventario Destino</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -86,24 +85,41 @@ textarea.msg{width:100%;min-height:300px;resize:vertical;padding:12px;border-rad
 .confirm div{display:flex;gap:10px}
 .confirm .btn{flex:1}
 .ok-msg{font-size:14px;color:var(--done);min-height:20px}
+.addform{display:flex;flex-direction:column;gap:8px}
+.addrow{display:flex;gap:10px}
+.addrow input{flex:1;min-width:0;height:48px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:500 16px var(--f-body)}
+.hl{list-style:none;padding:0;margin:8px 0 0;display:flex;flex-direction:column;gap:8px}
+.hl li{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hint{margin:0;font-size:13px;color:var(--muted)}
+.row .btn{flex:none;min-height:40px}
 @media (prefers-reduced-motion: no-preference){.bar>i{transition:width .2s}}
 </style>
 
 <div id="app"></div>
 
 <script>
-const DATA = {"locs": ["Persiana 1", "Persiana 2", "Persiana 3", "Persiana 4", "Persiana 5", "Nevera 1", "Nevera 2", "Congelador", "Persiana interior", "Restaurante"], "cats": [{"name": "GINEBRAS", "items": [{"i": 0, "n": "SEAGRAMS 0,7"}, {"i": 1, "n": "HENDRICKS 0,7"}, {"i": 2, "n": "GVINE 0,7"}, {"i": 3, "n": "GVINE 1"}, {"i": 4, "n": "LARIOS ROSE 0,7"}, {"i": 5, "n": "LARIOS 12 0,7"}, {"i": 6, "n": "GREENALLS 0,7"}, {"i": 7, "n": "PUERTO AZUL 0,7"}, {"i": 8, "n": "PUERTO ROSA 0,7"}, {"i": 9, "n": "PUERTO MELÓN 0,7"}, {"i": 10, "n": "PUERTO MORA 0,7"}, {"i": 11, "n": "PUERTO MANGO"}, {"i": 12, "n": "NORDÉS 0,7"}, {"i": 13, "n": "BROCKMANS ORANGE 0,7"}, {"i": 14, "n": "BROCKMANS INTENSELY 0,7"}, {"i": 15, "n": "BROCKMANS PREMIUM 0,7"}, {"i": 16, "n": "MARTIN MILLERS 0,7"}, {"i": 17, "n": "TANQUERAY 0,7"}, {"i": 18, "n": "ROSA INVI"}, {"i": 19, "n": "GIN BARATA"}, {"i": 20, "n": "BOMBAY"}, {"i": 21, "n": "BEEFETER"}, {"i": 22, "n": "MACARONESIAN"}, {"i": 23, "n": "MASTER AZUL"}, {"i": 24, "n": "MASTER ROSA"}, {"i": 25, "n": "MASTER VERDE"}, {"i": 26, "n": "TANQUERAY 0,0"}]}, {"name": "WHISKY", "items": [{"i": 27, "n": "BLACK LABEL"}, {"i": 28, "n": "FIREBALL"}, {"i": 29, "n": "RED LABEL"}, {"i": 30, "n": "JACK DANIEL’S"}, {"i": 31, "n": "JACK MANZANA"}, {"i": 32, "n": "CUTTY SARK"}, {"i": 33, "n": "DYC 8 AÑOS"}, {"i": 34, "n": "BUCHANANS 12 AÑOS"}, {"i": 35, "n": "JIM BEAM"}, {"i": 36, "n": "BALLENTINES"}, {"i": 37, "n": "GLENFIDDICH 12"}, {"i": 38, "n": "GLENFIDDICH 15"}, {"i": 39, "n": "BOLD"}]}, {"name": "VODKA", "items": [{"i": 40, "n": "ABSOLUT 0,7L"}, {"i": 41, "n": "ABSOLUT 1,75L"}, {"i": 42, "n": "ABSOLUT 3L"}, {"i": 43, "n": "ABSOLUT 4,5L"}, {"i": 44, "n": "CIROC COCO"}, {"i": 45, "n": "CIROC MANZANA"}, {"i": 46, "n": "CIROC NORMAL 0,7L"}, {"i": 47, "n": "CIROC NORMAL 1,75L"}, {"i": 48, "n": "CIROC MELOCOTÓN"}, {"i": 49, "n": "MOSKOVSKAYA"}, {"i": 50, "n": "GREY GOOSE 0,7L"}, {"i": 51, "n": "GREY GOOSE 1,5L"}, {"i": 52, "n": "BELVEDERE 0,7L"}, {"i": 53, "n": "BELVEDERE 1,75L"}, {"i": 54, "n": "BELVEDERE 3L"}, {"i": 55, "n": "BELVEDERE 6L"}, {"i": 56, "n": "VDK/INVITACIÓN"}]}, {"name": "RON", "items": [{"i": 57, "n": "SANTA TERESA"}, {"i": 58, "n": "BRUGAL"}, {"i": 59, "n": "BARCELÓ"}, {"i": 60, "n": "TINGURAM"}, {"i": 61, "n": "VIEJO DE CALDAS"}, {"i": 62, "n": "BRUGAL EXTRA VIEJO"}, {"i": 63, "n": "CACIQUE"}, {"i": 64, "n": "BARCELÓ IMPERIAL"}, {"i": 65, "n": "WHITE DAYAMON"}, {"i": 66, "n": "THOR"}]}, {"name": "LICORES", "items": [{"i": 67, "n": "TEQUILA FRESA"}, {"i": 68, "n": "TEQUILA MANGO"}, {"i": 69, "n": "COCO"}, {"i": 70, "n": "JOSÉ CUERVO"}, {"i": 71, "n": "JAGGER"}, {"i": 72, "n": "MALIBÚ"}, {"i": 73, "n": "MARTINI ROJO"}, {"i": 74, "n": "MARTINI BLANCO"}, {"i": 75, "n": "TERRY CENTENARIO"}, {"i": 76, "n": "BAILYE’S"}, {"i": 77, "n": "APEROL"}, {"i": 78, "n": "LICOR 43"}, {"i": 79, "n": "LICOR DE ARROZ"}, {"i": 80, "n": "LICOR DE HIERBAS"}, {"i": 81, "n": "ORUJO DE HIERBAS"}, {"i": 82, "n": "CAZAYA"}, {"i": 83, "n": "DON JULIO"}, {"i": 84, "n": "CACHAÇA"}, {"i": 85, "n": "TÍA MARÍA"}, {"i": 86, "n": "LIMONCELLO"}, {"i": 87, "n": "COINTREAU"}, {"i": 88, "n": "YZAGUIRRE BLANCO"}, {"i": 89, "n": "DE CATEGORÍA ROJO"}, {"i": 90, "n": "MARIA BRIZARD"}, {"i": 91, "n": "DISARONNO"}, {"i": 92, "n": "MISTELA"}, {"i": 93, "n": "MANGAROCA"}, {"i": 94, "n": "GRANADINA"}, {"i": 95, "n": "LIMA"}, {"i": 96, "n": "CALAVERA NARANJA"}, {"i": 97, "n": "CALAVERA BLANCA"}, {"i": 98, "n": "CALAVERA NEGRA"}, {"i": 99, "n": "PATRÓN"}, {"i": 100, "n": "DON PABLO"}, {"i": 101, "n": "LICOR DE CAFÉ"}]}, {"name": "MOET", "items": [{"i": 102, "n": "MOET BRUT"}, {"i": 103, "n": "MOET IMPERIAL ROSE"}, {"i": 104, "n": "MOET NIR"}, {"i": 105, "n": "MOET ICE"}, {"i": 106, "n": "MOET ICE ROSÉ"}, {"i": 107, "n": "DON PERIGNON"}]}]};
+const DATA = {"locs": ["Persiana 1", "Persiana 2", "Persiana 3", "Persiana 4", "Nevera 1", "Nevera 2", "Congelador", "Persiana interior", "Restaurante", "Otros"], "cats": [{"name": "GINEBRAS", "items": [{"i": 0, "n": "SEAGRAMS 0,7"}, {"i": 1, "n": "HENDRICKS 0,7"}, {"i": 2, "n": "GVINE 0,7"}, {"i": 3, "n": "GVINE 1"}, {"i": 4, "n": "LARIOS ROSE 0,7"}, {"i": 5, "n": "LARIOS 12 0,7"}, {"i": 6, "n": "GREENALLS 0,7"}, {"i": 7, "n": "PUERTO AZUL 0,7"}, {"i": 8, "n": "PUERTO ROSA 0,7"}, {"i": 9, "n": "PUERTO MELÓN 0,7"}, {"i": 10, "n": "PUERTO MORA 0,7"}, {"i": 11, "n": "PUERTO MANGO"}, {"i": 12, "n": "NORDÉS 0,7"}, {"i": 13, "n": "BROCKMANS ORANGE 0,7"}, {"i": 14, "n": "BROCKMANS INTENSELY 0,7"}, {"i": 15, "n": "BROCKMANS PREMIUM 0,7"}, {"i": 16, "n": "MARTIN MILLERS 0,7"}, {"i": 17, "n": "TANQUERAY 0,7"}, {"i": 18, "n": "ROSA INVI"}, {"i": 19, "n": "GIN BARATA"}, {"i": 20, "n": "BOMBAY"}, {"i": 21, "n": "BEEFETER"}, {"i": 22, "n": "MACARONESIAN"}, {"i": 23, "n": "MASTER AZUL"}, {"i": 24, "n": "MASTER ROSA"}, {"i": 25, "n": "MASTER VERDE"}, {"i": 26, "n": "TANQUERAY 0,0"}]}, {"name": "WHISKY", "items": [{"i": 27, "n": "BLACK LABEL"}, {"i": 28, "n": "FIREBALL"}, {"i": 29, "n": "RED LABEL"}, {"i": 30, "n": "JACK DANIEL’S"}, {"i": 31, "n": "JACK MANZANA"}, {"i": 32, "n": "CUTTY SARK"}, {"i": 33, "n": "DYC 8 AÑOS"}, {"i": 34, "n": "BUCHANANS 12 AÑOS"}, {"i": 35, "n": "JIM BEAM"}, {"i": 36, "n": "BALLENTINES"}, {"i": 37, "n": "GLENFIDDICH 12"}, {"i": 38, "n": "GLENFIDDICH 15"}, {"i": 39, "n": "BOLD"}]}, {"name": "VODKA", "items": [{"i": 40, "n": "ABSOLUT 0,7L"}, {"i": 41, "n": "ABSOLUT 1,75L"}, {"i": 42, "n": "ABSOLUT 3L"}, {"i": 43, "n": "ABSOLUT 4,5L"}, {"i": 44, "n": "CIROC COCO"}, {"i": 45, "n": "CIROC MANZANA"}, {"i": 46, "n": "CIROC NORMAL 0,7L"}, {"i": 47, "n": "CIROC NORMAL 1,75L"}, {"i": 48, "n": "CIROC MELOCOTÓN"}, {"i": 49, "n": "MOSKOVSKAYA"}, {"i": 50, "n": "GREY GOOSE 0,7L"}, {"i": 51, "n": "GREY GOOSE 1,5L"}, {"i": 52, "n": "BELVEDERE 0,7L"}, {"i": 53, "n": "BELVEDERE 1,75L"}, {"i": 54, "n": "BELVEDERE 3L"}, {"i": 55, "n": "BELVEDERE 6L"}, {"i": 56, "n": "VDK/INVITACIÓN"}]}, {"name": "RON", "items": [{"i": 57, "n": "SANTA TERESA"}, {"i": 58, "n": "BRUGAL"}, {"i": 59, "n": "BARCELÓ"}, {"i": 60, "n": "TINGURAM"}, {"i": 61, "n": "VIEJO DE CALDAS"}, {"i": 62, "n": "BRUGAL EXTRA VIEJO"}, {"i": 63, "n": "CACIQUE"}, {"i": 64, "n": "BARCELÓ IMPERIAL"}, {"i": 65, "n": "WHITE DAYAMON"}, {"i": 66, "n": "THOR"}]}, {"name": "LICORES", "items": [{"i": 67, "n": "TEQUILA FRESA"}, {"i": 68, "n": "TEQUILA MANGO"}, {"i": 69, "n": "COCO"}, {"i": 70, "n": "JOSÉ CUERVO"}, {"i": 71, "n": "JAGGER"}, {"i": 72, "n": "MALIBÚ"}, {"i": 73, "n": "MARTINI ROJO"}, {"i": 74, "n": "MARTINI BLANCO"}, {"i": 75, "n": "TERRY CENTENARIO"}, {"i": 76, "n": "BAILYE’S"}, {"i": 77, "n": "APEROL"}, {"i": 78, "n": "LICOR 43"}, {"i": 79, "n": "LICOR DE ARROZ"}, {"i": 80, "n": "LICOR DE HIERBAS"}, {"i": 81, "n": "ORUJO DE HIERBAS"}, {"i": 82, "n": "CAZAYA"}, {"i": 83, "n": "DON JULIO"}, {"i": 84, "n": "CACHAÇA"}, {"i": 85, "n": "TÍA MARÍA"}, {"i": 86, "n": "LIMONCELLO"}, {"i": 87, "n": "COINTREAU"}, {"i": 88, "n": "YZAGUIRRE BLANCO"}, {"i": 89, "n": "DE CATEGORÍA ROJO"}, {"i": 90, "n": "MARIA BRIZARD"}, {"i": 91, "n": "DISARONNO"}, {"i": 92, "n": "MISTELA"}, {"i": 93, "n": "MANGAROCA"}, {"i": 94, "n": "GRANADINA"}, {"i": 95, "n": "LIMA"}, {"i": 96, "n": "CALAVERA NARANJA"}, {"i": 97, "n": "CALAVERA BLANCA"}, {"i": 98, "n": "CALAVERA NEGRA"}, {"i": 99, "n": "PATRÓN"}, {"i": 100, "n": "DON PABLO"}, {"i": 101, "n": "LICOR DE CAFÉ"}]}, {"name": "MOET", "items": [{"i": 102, "n": "MOET BRUT"}, {"i": 103, "n": "MOET IMPERIAL ROSE"}, {"i": 104, "n": "MOET NIR"}, {"i": 105, "n": "MOET ICE"}, {"i": 106, "n": "MOET ICE ROSÉ"}, {"i": 107, "n": "DON PERIGNON"}]}]};
 const LOCS = DATA.locs, CATS = DATA.cats;
 const LS = 'inventario-destino-v1';
 const NS = LOCS.length * CATS.length;
 
-const fresh = () => ({counts:{}, done:{}, view:{s:'home',l:0,c:0}, startedAt:Date.now(), updatedAt:0, zeros:true});
+const fresh = () => ({v:2, counts:{}, done:{}, view:{s:'home',l:0,c:0}, startedAt:Date.now(), updatedAt:0, zeros:true, custom:{}, hidden:{}, nextId:1000});
 let S = fresh();
-let uiConfirmReset = false, uiZeroArm = false, uiCopied = '', zeroT = null;
+let uiConfirmReset = false, uiZeroArm = false, uiCopied = '', zeroT = null, uiEdit = false, uiAddMsg = '', uiShowHidden = false;
 
 /* ---------- Persistencia: el móvil guarda al instante; la nube (si está disponible) guarda una copia ---------- */
 let dbDoc = null, saveT = null, statusText = 'Listo';
-function normalize(o){ const f = fresh(); return Object.assign(f, o||{}, {view:Object.assign(f.view,(o&&o.view)||{})}); }
+/* Versión 2: «Persiana 5» pasó a ser «Otros» y se movió al final. Se recolocan los conteos guardados. */
+const LOC_MAP = [0,1,2,3,9,4,5,6,7,8];
+function migrate(o){
+  if (!o || o.v >= 2) return o;
+  const m = Object.assign({}, o, {counts:{}, done:{}});
+  Object.keys(o.counts||{}).forEach(k => { const [l,i] = k.split(':'); if (LOC_MAP[+l] !== undefined) m.counts[LOC_MAP[+l] + ':' + i] = o.counts[k]; });
+  Object.keys(o.done||{}).forEach(k => { const [l,c] = k.split(':'); if (LOC_MAP[+l] !== undefined) m.done[LOC_MAP[+l] + ':' + c] = o.done[k]; });
+  if (o.view) m.view = Object.assign({}, o.view, {l: LOC_MAP[o.view.l] ?? 0});
+  m.v = 2; return m;
+}
+function normalize(o){ o = migrate(o); const f = fresh(); return Object.assign(f, o||{}, {view:Object.assign(f.view,(o&&o.view)||{})}); }
 try { const raw = localStorage.getItem(LS); if (raw) S = normalize(JSON.parse(raw)); } catch(e){}
 
 function setStatus(t){ statusText = t; const el = document.getElementById('status'); if (el) el.textContent = statusLine(); }
@@ -143,16 +159,17 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':
 const key = (l,i) => l + ':' + i;
 const getN = (l,i) => S.counts[key(l,i)] || 0;
 const secDone = (l,c) => !!S.done[l + ':' + c];
-const secSum = (l,c) => CATS[c].items.reduce((a,it) => a + getN(l,it.i), 0);
+const itemsOf = c => CATS[c].items.concat(S.custom[c] || []).filter(it => !S.hidden[it.i]);
+const secSum = (l,c) => itemsOf(c).reduce((a,it) => a + getN(l,it.i), 0);
 const locDoneCount = l => CATS.reduce((a,_,c) => a + (secDone(l,c) ? 1 : 0), 0);
 const totalDone = () => LOCS.reduce((a,_,l) => a + locDoneCount(l), 0);
 const total = i => LOCS.reduce((a,_,l) => a + getN(l,i), 0);
-const nice = s => s.toLocaleLowerCase('es').replace(/(^|[\s\/(])(\p{L})/gu, (m,a,b) => a + b.toLocaleUpperCase('es'));
+const nice = s => s.toLocaleLowerCase('es').replace(/(^|[\s\/(])(\p{L})/gu, (m,a,b) => a + b.toLocaleUpperCase('es')).replace(/ (De|Del|La|El|Y) /g, m => m.toLowerCase());
 const dateLabel = (t, opts) => new Date(t).toLocaleDateString('es-ES', opts);
 function statusLine(){ return statusText + ' · inventario del ' + dateLabel(S.startedAt,{weekday:'long',day:'numeric',month:'long'}); }
 const pct = (a,b) => b ? Math.round(100*a/b) : 0;
 
-function go(s,l,c){ S.view = {s, l: l ?? S.view.l, c: c ?? S.view.c}; uiConfirmReset = false; uiZeroArm = false; uiCopied = ''; touch(); render(); window.scrollTo(0,0); }
+function go(s,l,c){ S.view = {s, l: l ?? S.view.l, c: c ?? S.view.c}; uiConfirmReset = false; uiZeroArm = false; uiCopied = ''; uiEdit = false; uiShowHidden = false; touch(); render(); window.scrollTo(0,0); }
 
 /* ---------- Vistas ---------- */
 function header(eyebrow, title, back){
@@ -193,16 +210,28 @@ function vLoc(){
 }
 
 function vCat(){
-  const l = S.view.l, c = S.view.c, cat = CATS[c];
+  const l = S.view.l, c = S.view.c, cat = CATS[c], items = itemsOf(c);
+  if (uiEdit){
+    const hid = CATS[c].items.concat(S.custom[c] || []).filter(it => S.hidden[it.i]);
+    return header(LOCS[l], cat.name, LOCS[l]) + `<main class="sect">
+      <form id="addform" class="addform"><label for="newname" class="eyebrow">Añadir producto a ${esc(cat.name)}</label>
+        <div class="addrow"><input id="newname" type="text" autocomplete="off" autocapitalize="characters" placeholder="Ej. GIN MARE 0,7"><button class="btn primary" type="submit">Añadir</button></div>
+        <div class="ok-msg" role="status">${esc(uiAddMsg)}</div></form>
+      <div class="list">${items.map(it => `<div class="row"><span class="nm">${esc(it.n)}</span><button class="btn danger" data-act="remove" data-i="${it.i}" aria-label="Quitar ${esc(it.n)}">Quitar</button></div>`).join('')}</div>
+      ${hid.length ? `<details class="note" id="hidlist" ${uiShowHidden ? 'open' : ''}><summary>Quitados (${hid.length})</summary><ul class="hl">${hid.map(it => `<li><span>${esc(it.n)}</span><button class="btn" data-act="restore" data-i="${it.i}">Restaurar</button></li>`).join('')}</ul></details>` : ''}
+      <p class="hint">Los cambios valen para todas las ubicaciones. Un producto quitado deja de salir en el conteo y en el resumen, y se puede restaurar.</p>
+    </main><div class="dock"><div class="dock-in"><button class="btn primary" data-act="edit-done">Listo</button></div></div>`;
+  }
   return header(LOCS[l], cat.name, LOCS[l]) + `<main class="sect">
     <div class="progress-line"><span>Contadas en esta sección</span><strong id="subtotal">${secSum(l,c)}</strong></div>
-    <div class="list">${cat.items.map(it => {
+    <div class="list">${items.map(it => {
       const n = getN(l,it.i);
       return `<div class="row ${n?'has':''}" data-i="${it.i}"><span class="nm">${esc(it.n)}</span>
         <span class="step"><button data-act="dec" aria-label="Quitar una ${esc(it.n)}">−</button>
         <input id="q-${it.i}" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="${n}" aria-label="Cantidad de ${esc(it.n)}">
         <button data-act="inc" aria-label="Añadir una ${esc(it.n)}">+</button></span></div>`;
     }).join('')}</div>
+    <button class="btn block" data-act="edit">Editar lista: añadir o quitar productos</button>
   </main>
   <div class="dock"><div class="dock-in">
     <button class="btn ${uiZeroArm?'danger':''}" data-act="zero" id="zero">${uiZeroArm ? '¿Seguro?' : 'A cero'}</button>
@@ -212,8 +241,8 @@ function vCat(){
 
 function message(){
   const lines = ['*INVENTARIO DESTINO* – ' + dateLabel(S.startedAt,{day:'numeric',month:'numeric'})];
-  CATS.forEach(c => {
-    const rows = c.items.map(it => [it, total(it.i)]).filter(([,n]) => S.zeros || n > 0);
+  CATS.forEach((c,ci) => {
+    const rows = itemsOf(ci).map(it => [it, total(it.i)]).filter(([,n]) => S.zeros || n > 0);
     if (!rows.length) return;
     lines.push('', '*' + c.name + '*');
     rows.forEach(([it,n]) => lines.push(nice(it.n) + ': ' + n));
@@ -224,7 +253,7 @@ function message(){
 function vSummary(){
   const pend = [];
   LOCS.forEach((n,l) => { const m = CATS.filter((c,ci) => !secDone(l,ci)).map(c => nice(c.name)); if (m.length) pend.push([n,m]); });
-  const totalBottles = CATS.reduce((a,c) => a + c.items.reduce((b,it) => b + total(it.i), 0), 0);
+  const totalBottles = CATS.reduce((a,c,ci) => a + itemsOf(ci).reduce((b,it) => b + total(it.i), 0), 0);
   return header('', 'Resumen', 'Contar') + `<main class="sect">
     ${pend.length ? `<details class="note"><summary>Faltan ${NS - totalDone()} secciones por terminar</summary><ul>${pend.map(([n,m]) => `<li><strong>${esc(n)}:</strong> ${esc(m.join(', '))}</li>`).join('')}</ul></details>`
       : `<div class="note" style="background:var(--done-bg);color:var(--done)">Todas las secciones están terminadas.</div>`}
@@ -273,9 +302,13 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'zero'){
     if (!uiZeroArm){ uiZeroArm = true; render(); clearTimeout(zeroT); zeroT = setTimeout(() => { uiZeroArm = false; if (S.view.s === 'cat') render(); }, 3000); return; }
-    CATS[V.c].items.forEach(it => delete S.counts[key(V.l,it.i)]);
+    itemsOf(V.c).forEach(it => delete S.counts[key(V.l,it.i)]);
     delete S.done[V.l + ':' + V.c]; uiZeroArm = false; touch(); render();
   }
+  else if (a === 'edit'){ uiEdit = true; uiAddMsg = ''; render(); window.scrollTo(0,0); }
+  else if (a === 'edit-done'){ uiEdit = false; uiShowHidden = false; render(); window.scrollTo(0,0); }
+  else if (a === 'remove'){ S.hidden[+b.dataset.i] = true; touch(); render(); }
+  else if (a === 'restore'){ delete S.hidden[+b.dataset.i]; uiShowHidden = true; touch(); render(); }
   else if (a === 'copy'){
     const ta = document.getElementById('msg'), text = ta.value; let ok = false;
     try { await navigator.clipboard.writeText(text); ok = true; } catch(err){}
@@ -285,9 +318,26 @@ document.addEventListener('click', async e => {
   }
   else if (a === 'reset'){ uiConfirmReset = true; render(); }
   else if (a === 'reset-no'){ uiConfirmReset = false; render(); }
-  else if (a === 'reset-yes'){ const z = S.zeros; S = fresh(); S.zeros = z; uiConfirmReset = false; touch(); render(); window.scrollTo(0,0); }
+  else if (a === 'reset-yes'){ S = Object.assign(fresh(), {zeros:S.zeros, custom:S.custom, hidden:S.hidden, nextId:S.nextId}); uiConfirmReset = false; touch(); render(); window.scrollTo(0,0); }
 });
 
+function addProduct(raw){
+  const c = S.view.c, name = raw.trim().replace(/\s+/g,' ').toLocaleUpperCase('es');
+  if (!name) return 'Escribe el nombre del producto.';
+  const dup = CATS[c].items.concat(S.custom[c] || []).find(it => it.n.toLocaleUpperCase('es') === name);
+  if (dup && !S.hidden[dup.i]) return 'Ese producto ya está en la lista.';
+  if (dup){ delete S.hidden[dup.i]; touch(); return 'Restaurado: ' + dup.n; }
+  (S.custom[c] = S.custom[c] || []).push({i: S.nextId++, n: name});
+  touch(); return 'Añadido: ' + name;
+}
+document.addEventListener('submit', e => {
+  if (e.target.id !== 'addform') return;
+  e.preventDefault();
+  uiAddMsg = addProduct(document.getElementById('newname').value);
+  render();
+  const n = document.getElementById('newname'); if (n) n.focus();
+});
+document.addEventListener('toggle', e => { if (e.target.id === 'hidlist') uiShowHidden = e.target.open; }, true);
 document.addEventListener('input', e => {
   const t = e.target;
   if (t.id === 'zeros'){ S.zeros = t.checked; touch(); document.getElementById('msg').value = message(); return; }
